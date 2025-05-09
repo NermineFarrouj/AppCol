@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string name="app_name">YourAppName</string>
+        <string name="create_account">Créer un compte</string>
+        <string name="email_hint">Email</string>
+        <string name="password_hint">Mot de passe</string>
+        <string name="confirm_password_hint">Confirmer le mot de passe</string>
+        <string name="register_button_text">S\'inscrire</string>
+        <string name="go_back_text">Déjà un compte ? Se connecter</string>
+        <string-array name="roles_array">
+                <item>Propriétaire</item>
+                <item>Locataire</item>
+        </string-array>
+</resources>

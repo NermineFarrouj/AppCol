@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "975288581177",
+    "project_id": "appco-806e2",
+    "storage_bucket": "appco-806e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975288581177:android:17cd9e28df29afd71a61e8",
+        "android_client_info": {
+          "package_name": "com.example.appco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ7dTpFb8BreUlHKeY0JeV30DQb0YCHxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

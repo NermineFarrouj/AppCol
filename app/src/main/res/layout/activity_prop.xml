@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/welcomeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bienvenue, Propriétaire"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btnAnnonces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gérer mes annonces" />
+
+        <Button
+            android:id="@+id/btnAvisLocataires"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Avis des locataires" />
+
+        <Button
+            android:id="@+id/btnDonnerAvis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Donner un avis" />
+
+        <Button
+            android:id="@+id/btnMessages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Messagerie" />
+
+        <Button
+            android:id="@+id/btnPaiements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Paiements reçus" />
+
+        <Button
+            android:id="@+id/btnProfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mon profil" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Se déconnecter"
+            android:textColor="#FFFFFF"
+            android:background="@android:color/holo_red_light"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>
