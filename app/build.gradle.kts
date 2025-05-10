@@ -50,5 +50,7 @@ dependencies {
     implementation ("com.github.dhaval2404:imagepicker:2.1")
     implementation ("com.github.bumptech.glide:glide:4.16.0") // Use the latest version
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")// For Glide's annotation processor (optional but recommended)
+    implementation ("com.google.firebase:firebase-database:20.0.5")
+
 
 }

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,6 +22,7 @@ import java.util.Map;
 public class Register extends AppCompatActivity {
 
     private EditText emailInput, passwordInput, confirmPasswordInput;
+    private EditText fullNameInput, phoneInput, descriptionInput;
     private Button registerButton, loginRedirectButton;
     private Spinner spinnerRole;
 
@@ -37,20 +37,35 @@ public class Register extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Liaison des champs de base
         emailInput = findViewById(R.id.editTextEmailRegister);
         passwordInput = findViewById(R.id.editTextPasswordRegister);
         confirmPasswordInput = findViewById(R.id.editTextConfirmPasswordRegister);
-        registerButton = findViewById(R.id.buttonRegister);
-        loginRedirectButton = findViewById(R.id.buttonGoToLogin);
         spinnerRole = findViewById(R.id.spinnerRole);
 
-        registerButton.setOnClickListener(v -> {
-            Log.d("RegisterActivity", "Register button clicked!"); // Added log
+        // Nouveaux champs
+        fullNameInput = findViewById(R.id.editTextName);
+        phoneInput = findViewById(R.id.editTextPhone);
+        descriptionInput = findViewById(R.id.editTextDescription);
 
+        registerButton = findViewById(R.id.buttonRegister);
+        loginRedirectButton = findViewById(R.id.buttonGoToLogin);
+
+        registerButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
             String confirmPassword = confirmPasswordInput.getText().toString().trim();
-            String selectedRole = spinnerRole.getSelectedItem().toString();
+            String role = spinnerRole.getSelectedItem().toString();
+
+            String fullName = fullNameInput.getText().toString().trim();
+            String phone = phoneInput.getText().toString().trim();
+            String description = descriptionInput.getText().toString().trim();
+
+            // Vérifications
+            if (TextUtils.isEmpty(fullName)) {
+                fullNameInput.setError("Nom requis");
+                return;
+            }
 
             if (TextUtils.isEmpty(email)) {
                 emailInput.setError("Email requis");
@@ -68,7 +83,7 @@ public class Register extends AppCompatActivity {
             }
 
             if (password.length() < 6) {
-                passwordInput.setError("Mot de passe trop court (min 6 caractères)");
+                passwordInput.setError("Mot de passe trop court");
                 return;
             }
 
@@ -77,6 +92,7 @@ public class Register extends AppCompatActivity {
                 return;
             }
 
+            // Création de l'utilisateur Firebase
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -84,10 +100,14 @@ public class Register extends AppCompatActivity {
                             if (user != null) {
                                 String uid = user.getUid();
 
-                                // Créer le document Firestore
+                                // Données à stocker dans Firestore
                                 Map<String, Object> userMap = new HashMap<>();
                                 userMap.put("email", email);
-                                userMap.put("role", selectedRole);
+                                userMap.put("role", role);
+                                userMap.put("nom", fullName);
+                                userMap.put("telephone", phone);
+                                userMap.put("description", description);
+                                userMap.put("imageUrl", ""); // à remplir plus tard via la caméra
 
                                 db.collection("users").document(uid)
                                         .set(userMap)
@@ -97,13 +117,12 @@ public class Register extends AppCompatActivity {
                                             finish();
                                         })
                                         .addOnFailureListener(e -> {
-                                            Log.e("RegisterActivity", "Firestore Error: " + e.getMessage());
+                                            Log.e("RegisterActivity", "Erreur Firestore : " + e.getMessage());
                                             Toast.makeText(Register.this, "Erreur Firestore : " + e.getMessage(), Toast.LENGTH_LONG).show();
                                         });
                             }
                         } else {
                             String errorMessage = task.getException().getMessage();
-                            Log.e("RegisterActivity", "Authentication Error: " + errorMessage);
                             if (errorMessage != null) {
                                 if (errorMessage.contains("email-already-in-use")) {
                                     emailInput.setError("Cet email est déjà utilisé");

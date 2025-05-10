@@ -10,20 +10,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import android.util.Base64;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+import android.content.Intent;
+import android.view.View;
 
 public class Profil extends AppCompatActivity {
 
@@ -50,7 +48,6 @@ public class Profil extends AppCompatActivity {
         } else {
             // Gérer le cas où l'utilisateur n'est pas connecté
             Log.e(TAG, "Utilisateur non connecté.");
-            // Rediriger vers l'écran de connexion ou afficher un message d'erreur
             finish();
             return;
         }
@@ -67,53 +64,61 @@ public class Profil extends AppCompatActivity {
         chargerInformationsProfil(proprietaireId);
 
         // Listener pour le bouton "Modifier"
-        boutonModifierProfil.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Démarrer l'activité ModifierProfilActivity en passant l'ID de l'utilisateur
-                Intent intent = new Intent(Profil.this, EditProfil.class);
-                intent.putExtra("proprietaireId", proprietaireId);
-                startActivity(intent);
-            }
+        boutonModifierProfil.setOnClickListener(v -> {
+            Intent intent = new Intent(Profil.this, EditProfil.class);
+            intent.putExtra("proprietaireId", proprietaireId);
+            startActivity(intent);
         });
     }
 
     private void chargerInformationsProfil(String proprietaireId) {
-        DocumentReference docRef = db.collection("proprietaires").document(proprietaireId);
-        docRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String nom = documentSnapshot.getString("nom");
-                String email = documentSnapshot.getString("email");
-                String telephone = documentSnapshot.getString("telephone");
-                String description = documentSnapshot.getString("description");
-                String imageUrl = documentSnapshot.getString("imageUrl");
+        // Charger les données depuis Firestore (texte)
+        db.collection("users").document(proprietaireId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String nom = documentSnapshot.getString("nom");
+                        String email = documentSnapshot.getString("email");
+                        String telephone = documentSnapshot.getString("telephone");
+                        String description = documentSnapshot.getString("description");
 
-                textViewNomCompletConsultation.setText(nom != null ? nom : "");
-                textViewEmailConsultation.setText(email != null ? email : "");
-                textViewTelephoneConsultation.setText(telephone != null ? telephone : "");
-                textViewDescriptionPersonnelleConsultation.setText(description != null ? description : "");
+                        textViewNomCompletConsultation.setText(nom != null ? nom : "");
+                        textViewEmailConsultation.setText(email != null ? email : "");
+                        textViewTelephoneConsultation.setText(telephone != null ? telephone : "");
+                        textViewDescriptionPersonnelleConsultation.setText(description != null ? description : "");
+                    } else {
+                        Log.d(TAG, "Document du propriétaire non trouvé.");
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Erreur lors du chargement des informations", e));
 
-                if (imageUrl != null && !imageUrl.isEmpty()) {
+        // Charger l'image depuis Realtime Database
+        DatabaseReference imageRef = FirebaseDatabase.getInstance().getReference().child("userImages").child(proprietaireId).child("profileImage");
+        imageRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String base64Image = dataSnapshot.getValue(String.class);
+                if (base64Image != null && !base64Image.isEmpty()) {
+                    byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                    Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                     Glide.with(Profil.this)
-                            .load(imageUrl)
-                            // Placeholder en cas de chargement
-                            .error(android.R.drawable.ic_menu_report_image) // Image en cas d'erreur
+                            .load(decodedBitmap)
+                            .error(android.R.drawable.ic_menu_report_image)
                             .into(imageViewPhotoProfilConsultation);
                 } else {
                     imageViewPhotoProfilConsultation.setImageResource(R.drawable.baseline_person_24); // Image par défaut
                 }
-            } else {
-                Log.d(TAG, "Document du propriétaire non trouvé.");
-                // Gérer le cas où les données n'existent pas
             }
-        }).addOnFailureListener(e -> Log.e(TAG, "Erreur lors du chargement du profil.", e));
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Erreur lors de la récupération de l'image", databaseError.toException());
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Lorsque l'activité revient au premier plan, rechargez les informations du profil
-        // pour afficher les éventuelles modifications.
         if (proprietaireId != null) {
             chargerInformationsProfil(proprietaireId);
         }
